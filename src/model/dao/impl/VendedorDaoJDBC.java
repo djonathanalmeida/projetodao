@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 import db.DB;
 import db.DbException;
@@ -51,17 +50,8 @@ public class VendedorDaoJDBC implements VendedorDao {
 
 			if (rs.next()) {
 
-				Departamento dep = new Departamento();
-				dep.setId(rs.getInt("DepartmentId"));
-				dep.setNome(rs.getString("DepName"));
-
-				Vendedor obj = new Vendedor();
-				obj.setId(rs.getInt("Id"));
-				obj.setNome("Name");
-				obj.setEmail(rs.getString("Email"));
-				obj.setSalarioBase(rs.getDouble("BaseSalary"));
-				obj.setDataNascimento(rs.getDate("BirthDate"));
-				obj.setDepartamento(dep);
+				Departamento dep = instanciacaoDepartamento(rs);
+				Vendedor obj = instanciacaoVendedor(rs, dep);
 				return obj;
 			}
 			return null;
@@ -72,6 +62,28 @@ public class VendedorDaoJDBC implements VendedorDao {
 			DB.closeResultSet(rs);
 		}
 
+	}
+
+	private Vendedor instanciacaoVendedor(ResultSet rs, Departamento dep) throws SQLException {
+		
+		Vendedor obj = new Vendedor();
+		obj.setId(rs.getInt("Id"));
+		obj.setNome(rs.getString("Name"));
+		obj.setEmail(rs.getString("Email"));
+		obj.setSalarioBase(rs.getDouble("BaseSalary"));
+		obj.setDataNascimento(rs.getDate("BirthDate"));
+		obj.setDepartamento(dep);
+		
+		return obj;
+	}
+
+	private Departamento instanciacaoDepartamento(ResultSet rs) throws SQLException {
+		
+		Departamento dep = new Departamento();
+		dep.setId(rs.getInt("DepartmentId"));
+		dep.setNome(rs.getString("DepName"));
+		
+		return dep;
 	}
 
 }
