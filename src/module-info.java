@@ -6,4 +6,5 @@
  *
  */
 module projetodao {
+	requires java.sql;
 }
