@@ -92,37 +92,27 @@ public class VendedorDaoJDBC implements VendedorDao {
 
 	@Override
 	public List<Vendedor> findAll() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Vendedor> findByDepartament(Departamento departamento) {
 
 		PreparedStatement st = null;
 		ResultSet rs = null;
 
 		try {
 			st = conn.prepareStatement(
-					"SELECT seller.*,department.Name as DepName "
-					+ "FROM seller INNER JOIN department "
-					+ "ON seller.DepartmentId = department.Id "
-					+ "WHERE DepartmentId = ? "
-					+ "ORDER BY Name");
+					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
+							+ "ON seller.DepartmentId = department.Id " + "ORDER BY Name");
 
-			st.setInt(1, departamento.getId());
 			rs = st.executeQuery();
-			
+
 			List<Vendedor> list = new ArrayList<>();
 			Map<Integer, Departamento> map = new HashMap<>();
 
 			while (rs.next()) {
-				
-				Departamento dep = map.get(rs.getInt("DepartmentId"));
-				
-				if(dep == null) {
+
+				Departamento dep = map.get(rs.getInt("Id"));
+
+				if (dep == null) {
 					dep = instanciacaoDepartamento(rs);
-					map.put(rs.getInt("DepartamentId"), dep);
+					map.put(rs.getInt("Id"), dep);
 				}
 
 				Vendedor obj = instanciacaoVendedor(rs, dep);
@@ -136,7 +126,45 @@ public class VendedorDaoJDBC implements VendedorDao {
 			DB.closeResultSet(rs);
 		}
 
-		return null;
+	}
+
+	@Override
+	public List<Vendedor> findByDepartament(Departamento departamento) {
+
+		PreparedStatement st = null;
+		ResultSet rs = null;
+
+		try {
+			st = conn.prepareStatement(
+					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
+							+ "ON seller.DepartmentId = department.Id " + "WHERE DepartmentId = ? " + "ORDER BY Name");
+
+			st.setInt(1, departamento.getId());
+			rs = st.executeQuery();
+
+			List<Vendedor> list = new ArrayList<>();
+			Map<Integer, Departamento> map = new HashMap<>();
+
+			while (rs.next()) {
+
+				Departamento dep = map.get(rs.getInt("Id"));
+
+				if (dep == null) {
+					dep = instanciacaoDepartamento(rs);
+					map.put(rs.getInt("Id"), dep);
+				}
+
+				Vendedor obj = instanciacaoVendedor(rs, dep);
+				list.add(obj);
+			}
+			return list;
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(st);
+			DB.closeResultSet(rs);
+		}
+
 	}
 
 }
